@@ -1,0 +1,94 @@
+﻿@page "/"
+@inject HttpClient Http
+@inject Blazored.LocalStorage.ILocalStorageService localStorage  
+<h1>Inscripciones</h1>
+<b>Alumnos</b>
+<div>
+    
+    @if (alumnos == null)
+    {
+        <p><em>Cargando...</em></p>
+    }
+    else
+    {
+        <select class="form-select" aria-label="Default select example"@bind="@Dpalumno">
+            <option selecting> seleccione al alumno</option>
+            @foreach (var alumno in alumnos)
+            {
+                <option value="@alumno.Dpi">@alumno.Nombre</option>
+            }
+        </select>
+    }
+</div>
+<b>Alumnos</b>
+<div>
+
+    @if (Talleres == null)
+    {
+        <p><em>Cargando...</em></p>
+    }
+    else
+    {
+        <select class="form-select form-select-lg mb-3" aria-label="Default select example" @bind="@codigotaller">
+            <option selecting> seleccione al taller</option>
+            @foreach (var taller in Talleres)
+            {
+                <option value="@taller.Codigo">@taller.Taller</option>
+            }
+        </select>
+    }
+</div>
+<div>
+    <button class="btn btn-primary" @onclick=" GuardarInscripcion">Click me</button>
+</div>
+<div>
+    @if (inscripcions == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Codigo</th>
+                    <th>Dpi</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var inscripion in inscripcions)
+                {
+                    <tr>
+                        <td>@inscripion.Codigo</td>
+                        <td>@inscripion.Dpi</td>
+                        <td>@inscripion.Fecha.ToShortDateString()</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+ </div>
+@code{
+    List<Alumno> alumnos;
+    List<Talleres> Talleres;
+    List<Inscripcion> inscripcions;
+
+    string codigotaller;
+    string Dpalumno;
+    protected override async Task OnInitializedAsync()
+    {
+        alumnos = await Http.GetFromJsonAsync<List<Alumno>>("sample-data/alumno.json");
+        Talleres = await Http.GetFromJsonAsync<List<Talleres>>("sample-data/Talleres.json");
+        //inscripcions = await
+    }
+    protected async Task GuardarInscripcion()
+    {
+        Inscripcion inscripcion = new Inscripcion();
+        inscripcion.Codigo = codigotaller;
+        inscripcion.Dpi = Dpalumno;
+        inscripcion.Fecha = DateTime.Now;
+        inscripcions.Add(inscripcion);
+        await localStorage.SetItemAsync("Inscripciones", "Inscripciones");
+    }
+}
